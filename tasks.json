@@ -1,0 +1,23 @@
+[
+    {
+      "title": "Revisión de contrato",
+      "description": "Analizar y validar las cláusulas del contrato con el cliente.",
+      "status": "pending",
+      "assigned_to": "Laura Pérez",
+      "due_date": "2025-08-15"
+    },
+    {
+      "title": "Desarrollo de módulo de pagos",
+      "description": "Implementar integración con pasarela de pago y realizar pruebas.",
+      "status": "in_progress",
+      "assigned_to": "Carlos Gómez",
+      "due_date": "2025-09-01"
+    },
+    {
+      "title": "Entrega de informe mensual",
+      "description": "Preparar y enviar el reporte de métricas a la dirección.",
+      "status": "completed",
+      "assigned_to": "María Rodríguez",
+      "due_date": "2025-08-05"
+    }
+  ]
