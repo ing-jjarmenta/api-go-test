@@ -5,12 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
+	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/database/mongodb"
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
-	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
 func main() {
@@ -31,24 +28,15 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func mongoDBConection() {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
-	client, err := mongo.Connect(options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongodb.NewMongoClient(ctx)
 	if err != nil {
-		log.Println("Error en la conexión")
-		log.Fatal(err)
+		log.Fatal("error conectando a mongo:", err)
 	}
 
-	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Println("Error en el Ping")
-		log.Fatal(err)
-	}
-
-	log.Println("Conectado a MongoDB")
-
-	collection := client.Database("apidb").Collection("tasks")
-	cursor, err := collection.Find(ctx, bson.D{})
+	tasksCollection := mongodb.TasksCollection(client)
+	cursor, err := tasksCollection.Find(ctx, bson.D{})
 	if err != nil {
 		log.Println("Error Find")
 		log.Fatal(err)
