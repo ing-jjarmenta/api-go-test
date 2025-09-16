@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/database/mongodb"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/ing-jjarmenta/api-go-test/internal/repository/task"
 )
 
 func main() {
@@ -36,27 +36,8 @@ func mongoDBConection() {
 	}
 
 	tasksCollection := mongodb.TasksCollection(client)
-	cursor, err := tasksCollection.Find(ctx, bson.D{})
-	if err != nil {
-		log.Println("Error Find")
-		log.Fatal(err)
-	}
-
-	defer cursor.Close(ctx)
-	for cursor.Next(ctx) {
-		var result bson.D
-		if err := cursor.Decode(&result); err != nil {
-			log.Fatal(err)
-		}
-
-		log.Println("task")
-		log.Println(result)
-	}
-
-	if err := cursor.Err(); err != nil {
-		log.Println("Error en el cursor")
-		log.Fatal(err)
-	}
+	repository := task.NewTaskRepository(tasksCollection)
+	log.Println(repository.GetAll(ctx))
 
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {

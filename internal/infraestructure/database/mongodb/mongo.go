@@ -2,7 +2,7 @@ package mongodb
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"os"
 	"time"
 
@@ -11,7 +11,32 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
-func NewMongoClient(ctx context.Context) (*mongo.Client, error) {
+// Patrón adapter para desacoplar Mongo y poder realizar pruebas unitarias independientes
+
+type MongoClient interface {
+	Database(name string, opts ...options.Lister[options.DatabaseOptions]) MongoDatabase
+	Disconnect(ctx context.Context) error
+}
+
+type MongoDatabase interface {
+	Collection(name string, opts ...options.Lister[options.CollectionOptions]) MongoCollection
+}
+
+type MongoCollection interface {
+	Find(ctx context.Context, filter any, opts ...options.Lister[options.FindOptions]) (*mongo.Cursor, error)
+}
+
+// Wrappers necesarios para simular y facilitar el comportamiento en pruebas unitarias
+
+var connectFunc = func(opts ...*options.ClientOptions) (*mongo.Client, error) {
+	return mongo.Connect(opts...)
+}
+
+var pingFunc = func(ctx context.Context, client *mongo.Client) error {
+	return client.Ping(ctx, readpref.Primary())
+}
+
+func NewMongoClient(ctx context.Context) (MongoClient, error) {
 	uri := os.Getenv("MONGO_URI")
 	if uri == "" {
 		uri = "mongodb://localhost:27017"
@@ -21,27 +46,19 @@ func NewMongoClient(ctx context.Context) (*mongo.Client, error) {
 	defer cancel()
 
 	clientOpts := options.Client().ApplyURI(uri)
-	client, err := mongo.Connect(clientOpts)
+	client, err := connectFunc(clientOpts)
 	if err != nil {
-		log.Println("Error en la conexión")
-		log.Fatal(err)
-
-		return nil, err
+		return nil, fmt.Errorf("error conectando a MongoDB: %w", err)
 	}
 
-	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Println("Error en el Ping")
-		log.Fatal(err)
-
-		return nil, err
+	if err = pingFunc(ctx, client); err != nil {
+		return nil, fmt.Errorf("error haciendo ping a MongoDB: %w", err)
 	}
 
-	log.Println("Conectado a MongoDB")
-
-	return client, nil
+	return &AdapterClient{client}, nil
 }
 
-func TasksCollection(client *mongo.Client) *mongo.Collection {
+func TasksCollection(client MongoClient) MongoCollection {
 	dbName := os.Getenv("MONGO_DB")
 	if dbName == "" {
 		dbName = "apidb"

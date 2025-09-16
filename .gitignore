@@ -1,0 +1,24 @@
+# Archivos de coverage
+coverage.out
+coverage.html
+
+# Archivos y directorios de build
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Archivos temporales de Go
+*.test
+*.out
+
+# Archivos de dependencias o caché
+vendor/
+*.log
+
+# Configuración del sistema/IDE
+.idea/
+.vscode/
+.DS_Store
