@@ -19,6 +19,10 @@ type AdapterCollection struct {
 	*mongo.Collection
 }
 
+type AdapterCursor struct {
+	*mongo.Cursor
+}
+
 func (ac *AdapterClient) Database(name string, opts ...options.Lister[options.DatabaseOptions]) MongoDatabase {
 	return &AdapterDatabase{ac.Client.Database(name, opts...)}
 }
@@ -31,6 +35,27 @@ func (ad *AdapterDatabase) Collection(name string, opts ...options.Lister[option
 	return &AdapterCollection{ad.Database.Collection(name, opts...)}
 }
 
-func (ac *AdapterCollection) Find(ctx context.Context, filter any, opts ...options.Lister[options.FindOptions]) (*mongo.Cursor, error) {
-	return ac.Collection.Find(ctx, filter, opts...)
+func (ac *AdapterCollection) Find(ctx context.Context, filter any, opts ...options.Lister[options.FindOptions]) (MongoCursor, error) {
+	cursor, err := ac.Collection.Find(ctx, filter, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AdapterCursor{Cursor: cursor}, nil
+}
+
+func (acursor *AdapterCursor) Next(ctx context.Context) bool {
+	return acursor.Cursor.Next(ctx)
+}
+
+func (acursor *AdapterCursor) Decode(val any) error {
+	return acursor.Cursor.Decode(val)
+}
+
+func (acursor *AdapterCursor) Err() error {
+	return acursor.Cursor.Err()
+}
+
+func (acursor *AdapterCursor) Close(ctx context.Context) error {
+	return acursor.Cursor.Close(ctx)
 }

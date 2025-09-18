@@ -23,7 +23,14 @@ type MongoDatabase interface {
 }
 
 type MongoCollection interface {
-	Find(ctx context.Context, filter any, opts ...options.Lister[options.FindOptions]) (*mongo.Cursor, error)
+	Find(ctx context.Context, filter any, opts ...options.Lister[options.FindOptions]) (MongoCursor, error)
+}
+
+type MongoCursor interface {
+	Next(ctx context.Context) bool
+	Decode(val any) error
+	Err() error
+	Close(ctx context.Context) error
 }
 
 // Wrappers necesarios para simular y facilitar el comportamiento en pruebas unitarias

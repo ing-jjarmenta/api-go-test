@@ -2,25 +2,25 @@ package task
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	domain "github.com/ing-jjarmenta/api-go-test/internal/domain/task"
 	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/database/mongodb"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-type taskRespository struct {
+type TaskRepository struct {
 	collection mongodb.MongoCollection
 }
 
-func NewTaskRepository(collection mongodb.MongoCollection) *taskRespository {
-	return &taskRespository{collection: collection}
+func NewTaskRepository(collection mongodb.MongoCollection) *TaskRepository {
+	return &TaskRepository{collection: collection}
 }
 
-func (r *taskRespository) GetAll(ctx context.Context) ([]domain.Task, error) {
+func (r *TaskRepository) GetAll(ctx context.Context) ([]domain.Task, error) {
 	cursor, err := r.collection.Find(ctx, bson.D{})
 	if err != nil {
-		return []domain.Task{}, err
+		return nil, fmt.Errorf("find tasks: %w", err)
 	}
 
 	defer cursor.Close(ctx)
@@ -29,18 +29,14 @@ func (r *taskRespository) GetAll(ctx context.Context) ([]domain.Task, error) {
 	for cursor.Next(ctx) {
 		var task domain.Task
 		if err := cursor.Decode(&task); err != nil {
-			log.Println("Error decoding document task")
-
-			return []domain.Task{}, err
+			return nil, fmt.Errorf("decode task: %w", err)
 		}
 
 		tasks = append(tasks, task)
 	}
 
 	if err = cursor.Err(); err != nil {
-		log.Println("Error cursor")
-
-		return []domain.Task{}, err
+		return nil, fmt.Errorf("cursor error: %w", err)
 	}
 
 	return tasks, nil

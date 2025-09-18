@@ -119,7 +119,7 @@ func TestNewMongoClient(t *testing.T) {
 	}
 }
 
-func TestWrappers(t *testing.T) {
+func TestWrappersConnectAndPing(t *testing.T) {
 	// No validará conexión real, solo que las funciones existen y son invocables.
 	_, _ = connectFunc(options.Client()) // ignoro error
 	_ = pingFunc(context.Background(), &mongo.Client{})
