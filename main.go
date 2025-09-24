@@ -7,7 +7,8 @@ import (
 	"net/http"
 
 	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/database/mongodb"
-	"github.com/ing-jjarmenta/api-go-test/internal/repository/task"
+	repository "github.com/ing-jjarmenta/api-go-test/internal/repository/task"
+	service "github.com/ing-jjarmenta/api-go-test/internal/service/task"
 )
 
 func main() {
@@ -36,8 +37,9 @@ func mongoDBConection() {
 	}
 
 	tasksCollection := mongodb.TasksCollection(client)
-	repository := task.NewTaskRepository(tasksCollection)
-	log.Println(repository.GetAll(ctx))
+	repository := repository.NewTaskRepository(tasksCollection)
+	service := service.NewTaskService(repository)
+	log.Println(service.GetAll(ctx))
 
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {

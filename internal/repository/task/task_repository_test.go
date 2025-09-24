@@ -107,7 +107,7 @@ func TestGetAll(t *testing.T) {
 			ctx := t.Context()
 			mockCollection, mockCursor := tt.mocks(ctx)
 			repository := newTaskRepository(t, mockCollection)
-			tt.asserts(repository.GetAll(t.Context()))
+			tt.asserts(repository.GetAll(ctx))
 			mockCollection.AssertExpectations(t)
 			if mockCursor != nil {
 				mockCursor.AssertExpectations(t)
