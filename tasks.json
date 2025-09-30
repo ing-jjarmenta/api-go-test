@@ -1,5 +1,6 @@
 [
     {
+      "_id": "689781ad82095e30a73ae7fe",
       "title": "Revisión de contrato",
       "description": "Analizar y validar las cláusulas del contrato con el cliente.",
       "status": "pending",
@@ -7,6 +8,7 @@
       "due_date": "2025-08-15"
     },
     {
+      "_id": "689781ad82095e30a73ae7ff",
       "title": "Desarrollo de módulo de pagos",
       "description": "Implementar integración con pasarela de pago y realizar pruebas.",
       "status": "in_progress",
@@ -14,6 +16,7 @@
       "due_date": "2025-09-01"
     },
     {
+      "_id": "689781ad82095e30a73ae800",
       "title": "Entrega de informe mensual",
       "description": "Preparar y enviar el reporte de métricas a la dirección.",
       "status": "completed",
