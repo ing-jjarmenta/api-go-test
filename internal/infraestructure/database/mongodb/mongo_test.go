@@ -65,7 +65,7 @@ func TestNewMongoClient(t *testing.T) {
 			mockConnect: func(opts ...*options.ClientOptions) (*mongo.Client, error) {
 				return nil, errors.New("mock connect error")
 			},
-			mockPing: pingFunc,
+			mockPing: PingFunc,
 			asserts: func(client MongoClient, err error) {
 				assert.Nil(t, client)
 				assert.Error(t, err)
@@ -104,15 +104,15 @@ func TestNewMongoClient(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// backup originales
-			origConnect := connectFunc
-			origPing := pingFunc
+			origConnect := ConnectFunc
+			origPing := PingFunc
 			defer func() {
-				connectFunc = origConnect
-				pingFunc = origPing
+				ConnectFunc = origConnect
+				PingFunc = origPing
 			}()
 
-			connectFunc = tt.mockConnect
-			pingFunc = tt.mockPing
+			ConnectFunc = tt.mockConnect
+			PingFunc = tt.mockPing
 
 			tt.asserts(NewMongoClient(context.Background()))
 		})
@@ -121,6 +121,6 @@ func TestNewMongoClient(t *testing.T) {
 
 func TestWrappersConnectAndPing(t *testing.T) {
 	// No validará conexión real, solo que las funciones existen y son invocables.
-	_, _ = connectFunc(options.Client()) // ignoro error
-	_ = pingFunc(context.Background(), &mongo.Client{})
+	_, _ = ConnectFunc(options.Client()) // ignoro error
+	_ = PingFunc(context.Background(), &mongo.Client{})
 }

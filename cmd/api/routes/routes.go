@@ -1,4 +1,4 @@
-package server
+package routes
 
 import (
 	"net/http"
@@ -7,7 +7,9 @@ import (
 )
 
 func RegisterRoutes(mux *http.ServeMux, handlers dependencies.Handlers) {
-	mux.HandleFunc("/api/tasks", handlers.Task.GetAllTasks)
+	apiV1 := RoutesAPIV1(handlers)
+
+	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiV1))
 
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

@@ -1,12 +1,22 @@
 package dependencies
 
 import (
-	"github.com/ing-jjarmenta/api-go-test/cmd/api/handler"
+	"context"
+	"net/http"
+
 	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/database/mongodb"
 )
 
+type TaskHandler interface {
+	GetAllTasks(w http.ResponseWriter, r *http.Request)
+}
+
 type Handlers struct {
-	Task *handler.TaskHandler
+	Task TaskHandler
+}
+
+func ResolveMongoClient(ctx context.Context) (mongodb.MongoClient, error) {
+	return mongodb.NewMongoClient(ctx)
 }
 
 func ResolveHandlers(client mongodb.MongoClient) Handlers {

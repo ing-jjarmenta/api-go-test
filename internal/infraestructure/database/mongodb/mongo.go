@@ -35,11 +35,11 @@ type MongoCursor interface {
 
 // Wrappers necesarios para simular y facilitar el comportamiento en pruebas unitarias
 
-var connectFunc = func(opts ...*options.ClientOptions) (*mongo.Client, error) {
+var ConnectFunc = func(opts ...*options.ClientOptions) (*mongo.Client, error) {
 	return mongo.Connect(opts...)
 }
 
-var pingFunc = func(ctx context.Context, client *mongo.Client) error {
+var PingFunc = func(ctx context.Context, client *mongo.Client) error {
 	return client.Ping(ctx, readpref.Primary())
 }
 
@@ -53,12 +53,12 @@ func NewMongoClient(ctx context.Context) (MongoClient, error) {
 	defer cancel()
 
 	clientOpts := options.Client().ApplyURI(uri)
-	client, err := connectFunc(clientOpts)
+	client, err := ConnectFunc(clientOpts)
 	if err != nil {
 		return nil, fmt.Errorf("error conectando a MongoDB: %w", err)
 	}
 
-	if err = pingFunc(ctx, client); err != nil {
+	if err = PingFunc(ctx, client); err != nil {
 		return nil, fmt.Errorf("error haciendo ping a MongoDB: %w", err)
 	}
 

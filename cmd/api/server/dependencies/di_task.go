@@ -1,18 +1,12 @@
 package dependencies
 
 import (
-	"context"
-
 	"github.com/ing-jjarmenta/api-go-test/cmd/api/handler"
 	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/database/mongodb"
 	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/jsonencodec"
 	repository "github.com/ing-jjarmenta/api-go-test/internal/repository/task"
 	service "github.com/ing-jjarmenta/api-go-test/internal/service/task"
 )
-
-func ResolveMongoClient(ctx context.Context) (mongodb.MongoClient, error) {
-	return mongodb.NewMongoClient(ctx)
-}
 
 func resolveTaskCollection(client mongodb.MongoClient) mongodb.MongoCollection {
 	return mongodb.TasksCollection(client)

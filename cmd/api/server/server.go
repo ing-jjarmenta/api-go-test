@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ing-jjarmenta/api-go-test/cmd/api/routes"
 	"github.com/ing-jjarmenta/api-go-test/cmd/api/server/dependencies"
 )
 
@@ -22,7 +23,7 @@ func Run() error {
 	}()
 
 	mux := http.NewServeMux()
-	RegisterRoutes(mux, dependencies.ResolveHandlers(client))
+	routes.RegisterRoutes(mux, dependencies.ResolveHandlers(client))
 
 	log.Println("Server running on :8081")
 
