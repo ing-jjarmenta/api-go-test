@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ing-jjarmenta/api-go-test/cmd/api/dto/task/response"
 	"github.com/ing-jjarmenta/api-go-test/cmd/api/handler"
 	domain "github.com/ing-jjarmenta/api-go-test/internal/domain/task"
 	"github.com/ing-jjarmenta/api-go-test/internal/infraestructure/jsonencodec"
@@ -18,14 +19,27 @@ import (
 )
 
 func TestGetAllTasks(t *testing.T) {
+	expectedID := bson.NewObjectID()
+	expectedTitle := "Revisión de contrato"
+	expectedDescription := "Analizar y validar las cláusulas del contrato con el cliente."
+	expectedStatus := "pending"
+
 	expectedTasks := []domain.Task{
 		{
-			ID:          bson.NewObjectID(),
-			Title:       "Revisión de contrato",
-			Description: "Analizar y validar las cláusulas del contrato con el cliente.",
-			Status:      "pending",
+			ID:          expectedID,
+			Title:       expectedTitle,
+			Description: expectedDescription,
+			Status:      expectedStatus,
 			AssignedTo:  "Laura Pérez",
 			DueDate:     "2025-08-15",
+		},
+	}
+	expectedTaskResponses := []response.TaskResponse{
+		{
+			ID:          expectedID.Hex(),
+			Title:       expectedTitle,
+			Description: expectedDescription,
+			Status:      expectedStatus,
 		},
 	}
 	tests := []struct {
@@ -44,7 +58,7 @@ func TestGetAllTasks(t *testing.T) {
 				service.On("GetAll", mock.Anything).Return(expectedTasks, nil)
 
 				jsonEncoder := new(jsonencodec.MockEncoder)
-				jsonEncoder.On("Encode", expectedTasks).Return(nil).Run(func(args mock.Arguments) {
+				jsonEncoder.On("Encode", expectedTaskResponses).Return(nil).Run(func(args mock.Arguments) {
 					data, _ := json.Marshal(args.Get(0))
 					w.Write(data)
 				})
@@ -52,12 +66,12 @@ func TestGetAllTasks(t *testing.T) {
 				return service, jsonEncoder
 			},
 			asserts: func(w *httptest.ResponseRecorder) {
-				var result []domain.Task
+				var result []response.TaskResponse
 				err := json.Unmarshal(w.Body.Bytes(), &result)
 				assert.NoError(t, err)
 
 				assert.Equal(t, http.StatusOK, w.Code)
-				assert.Equal(t, expectedTasks, result)
+				assert.Equal(t, expectedTaskResponses, result)
 			},
 		},
 		{
@@ -93,7 +107,7 @@ func TestGetAllTasks(t *testing.T) {
 				service.On("GetAll", mock.Anything).Return(expectedTasks, nil)
 
 				jsonEncoder := new(jsonencodec.MockEncoder)
-				jsonEncoder.On("Encode", expectedTasks).Return(errors.New("encode error"))
+				jsonEncoder.On("Encode", expectedTaskResponses).Return(errors.New("encode error"))
 
 				return service, jsonEncoder
 			},
@@ -124,7 +138,7 @@ func TestGetAllTasks(t *testing.T) {
 			tt.asserts(w)
 			service.AssertCalled(t, "GetAll", mock.Anything)
 			if jsonEncoder != nil {
-				jsonEncoder.AssertCalled(t, "Encode", expectedTasks)
+				jsonEncoder.AssertCalled(t, "Encode", expectedTaskResponses)
 			}
 		})
 	}

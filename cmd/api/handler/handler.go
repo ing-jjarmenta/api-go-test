@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/ing-jjarmenta/api-go-test/cmd/api/dto/task/response"
 	domain "github.com/ing-jjarmenta/api-go-test/internal/domain/task"
 )
 
@@ -33,7 +34,8 @@ func (h *TaskHandler) GetAllTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.encoderFactory(w).Encode(tasks); err != nil {
+	taskResponses := response.ToTaskResponses(tasks)
+	if err := h.encoderFactory(w).Encode(taskResponses); err != nil {
 		http.Error(w, "failed to encode response: "+err.Error(), http.StatusInternalServerError)
 	}
 }
